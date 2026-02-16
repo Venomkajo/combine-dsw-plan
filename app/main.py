@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 app = FastAPI()
 
-async def get_plan_data(url: str):
+async def get_plan_data(url: str, color: str) -> dict:
     async with httpx.AsyncClient() as client:
         # Use headers to look like a real browser
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36", "Cookie": get_date_cookie()}
@@ -23,6 +23,9 @@ async def get_plan_data(url: str):
             for garbage in row.find_all(['script', 'img', 'input']): # Remove unwanted tags like <script>, <img>, and <input>
                 garbage.decompose()
 
+            for links in row.find_all('a'): # Remove <a> tags but keep their text
+                links.unwrap()
+
             for tag in row.find_all(True): # True finds all tags, remove them
                 tag.attrs = {} 
 
@@ -38,19 +41,19 @@ async def get_plan_data(url: str):
                     if len(lesson_time) == 4:
                         lesson_time = "0"+ lesson_time
 
-
+                row['style'] = f"background-color: {color};"
 
                 date_dictionary[iterating_date].append((lesson_time, str(row)))
 
         return date_dictionary
 
 def get_date_cookie():
-    return "RadioList_TerminGr=2026,2,16%5C2026,2,22%5C1"
+    return "RadioList_TerminGr=2026,2,19%5C2026,2,24%5C1"
 
 @app.get("/", response_class=HTMLResponse)
 async def my_combined_plan():
-    plan1 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20153")
-    plan2 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18909")
+    plan1 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20153", "oklch(44.3% 0.11 240.79)")
+    plan2 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18909", "oklch(41% 0.159 10.272)")
 
     combined_plan = defaultdict(list)
     
@@ -71,11 +74,13 @@ async def my_combined_plan():
             td { border-bottom: 1px solid #eee; padding: 12px; font-size: 14px; }
             tr:hover { background-color: #f9f9f9; }
             .time-col { font-weight: bold; color: #333; width: 100px; }
+            .plan-blue { background-color: #e6f0ff; }
+            .plan-red { background-color: #ffe6e6; }
         </style>
     </head>
     <body>
         <div class="container">
-            <h1>Mój Połączony Harmonogram</h1>
+            <h1>Harmonogram</h1>
     """
 
     for date in sorted(combined_plan.keys()):
