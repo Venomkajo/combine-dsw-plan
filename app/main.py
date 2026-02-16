@@ -75,9 +75,9 @@ async def my_combined_plan():
             .date-header {{ background-color: #333; color: white; padding: 12px; font-weight: bold; border-radius: 4px; margin-top: 25px; }}
             table {{ width: 100%; border-collapse: collapse; margin-top: 5px; }}
             td {{ border-bottom: 1px solid rgba(255,255,255,0.1); padding: 12px; font-size: 14px; color: white; }}
-            .plan-gradient {{ background-color: {color3}; }}
             .plan-1 {{ background-color: {color1}; }}
             .plan-2 {{ background-color: {color2}; }}
+            .plan-3 {{ background-color: {color3}; }}
         </style>
     </head>
     <body>
@@ -102,7 +102,7 @@ async def my_combined_plan():
         
         # Combine and sort all by time
         combined_rows = []
-        for item in overlap: combined_rows.append((item[0], item[1], "plan-gradient"))
+        for item in overlap: combined_rows.append((item[0], item[1], "plan-3"))
         for item in only_plan1: combined_rows.append((item[0], item[1], "plan-1"))
         for item in only_plan2: combined_rows.append((item[0], item[1], "plan-2"))
         
