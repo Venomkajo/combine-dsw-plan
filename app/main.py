@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 app = FastAPI()
 
-async def get_plan_data(url: str, color: str) -> dict:
+async def get_plan_data(url: str) -> dict:
     async with httpx.AsyncClient() as client:
         # Use headers to look like a real browser
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36", "Cookie": get_date_cookie()}
@@ -42,9 +42,8 @@ async def get_plan_data(url: str, color: str) -> dict:
                     if len(lesson_time) == 4:
                         lesson_time = "0"+ lesson_time
 
-                row['style'] = f"background-color: {color};"
-
-                date_dictionary[iterating_date].append((lesson_time, str(row)))
+                row = "".join(str(td) for td in all_tds) # Convert the row to a string of its <td> elements
+                date_dictionary[iterating_date].append((lesson_time, row))
 
         return date_dictionary
 
@@ -55,45 +54,62 @@ def get_date_cookie():
 
 @app.get("/", response_class=HTMLResponse)
 async def my_combined_plan():
-    plan1 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20153", "oklch(44.3% 0.11 240.79)")
-    plan2 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18909", "oklch(41% 0.159 10.272)")
+    # Define colors
+    color1 = "oklch(44.3% 0.11 240.79)" # Blue-ish
+    color2 = "oklch(41% 0.159 10.272)"  # Red-ish
+    color3 = "oklch(50% 0.2 120)"       # Green-ish
 
-    combined_plan = defaultdict(list)
-    
-    for date, courses in plan1.items():
-        combined_plan[date].extend(courses)
-    
-    for date, courses in plan2.items():
-        combined_plan[date].extend(courses)
+    # Fetch data
+    plan1 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20153")
+    plan2 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18909")
 
-    html_content = """
+    # Combine keys (dates)
+    all_dates = sorted(set(plan1.keys()) | set(plan2.keys()))
+    
+    html_content = f"""
     <html>
     <head>
         <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; }
-            .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-            .date-header { background-color: #0056b3; color: white; padding: 12px; font-weight: bold; border-radius: 4px; margin-top: 25px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-            td { border-bottom: 1px solid #eee; padding: 12px; font-size: 14px; }
-            tr:hover { background-color: #f9f9f9; }
-            .time-col { font-weight: bold; color: #333; width: 100px; }
-            .plan-blue { background-color: #e6f0ff; }
-            .plan-red { background-color: #ffe6e6; }
+            body {{ font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 20px; }}
+            .container {{ max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+            .date-header {{ background-color: #333; color: white; padding: 12px; font-weight: bold; border-radius: 4px; margin-top: 25px; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 5px; }}
+            td {{ border-bottom: 1px solid rgba(255,255,255,0.1); padding: 12px; font-size: 14px; color: white; }}
+            .plan-gradient {{ background-color: {color3}; }}
+            .plan-1 {{ background-color: {color1}; }}
+            .plan-2 {{ background-color: {color2}; }}
         </style>
     </head>
     <body>
         <div class="container">
-            <h1>Harmonogram</h1>
+            <h1>Harmonogram Połączony</h1>
     """
 
-    for date in sorted(combined_plan.keys()):
-        html_content += f"<div class='date-header'>{date}</div>"
-        html_content += "<table>"
+    for date in all_dates:
+        html_content += f"<div class='date-header'>{date}</div><table>"
         
-        sorted_entries = sorted(combined_plan[date], key=lambda x: x[0])
+        # Create sets of (time, content) for comparison
+        entries1 = plan1.get(date, [])
+        entries2 = plan2.get(date, [])
         
-        for _, row_html in sorted_entries:
-            html_content += row_html
+        set1 = set(entries1)
+        set2 = set(entries2)
+        
+        # Identify overlaps and unique items
+        overlap = set1 & set2
+        only_plan1 = set1 - set2
+        only_plan2 = set2 - set1
+        
+        # Combine and sort all by time
+        combined_rows = []
+        for item in overlap: combined_rows.append((item[0], item[1], "plan-gradient"))
+        for item in only_plan1: combined_rows.append((item[0], item[1], "plan-1"))
+        for item in only_plan2: combined_rows.append((item[0], item[1], "plan-2"))
+        
+        combined_rows.sort(key=lambda x: x[0]) # Sort by time
+
+        for time, content, css_class in combined_rows:
+            html_content += f"<tr class='{css_class}'>{content}</tr>"
             
         html_content += "</table>"
 
