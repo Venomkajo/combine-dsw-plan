@@ -35,9 +35,12 @@ async def get_plan_data(url: str):
                 all_tds = row.find_all("td")
                 if len(all_tds) > 1:
                     lesson_time = all_tds[1].get_text(strip=True)
+                    if len(lesson_time) == 4:
+                        lesson_time = "0"+ lesson_time
 
 
-                date_dictionary[iterating_date].append(str(row))
+
+                date_dictionary[iterating_date].append((lesson_time, str(row)))
 
         return date_dictionary
 
@@ -57,28 +60,34 @@ async def my_combined_plan():
     for date, courses in plan2.items():
         combined_plan[date].extend(courses)
 
-    print(combined_plan)
-
     html_content = """
     <html>
     <head>
         <style>
-            body { font-family: sans-serif; padding: 20px; }
-            .date-header { background-color: #f2f2f2; font-weight: bold; padding: 10px; border: 1px solid #ccc; margin-top: 10px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-            td { border: 1px solid #ddd; padding: 8px; }
-            tr:nth-child(even) { background-color: #fafafa; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; }
+            .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .date-header { background-color: #0056b3; color: white; padding: 12px; font-weight: bold; border-radius: 4px; margin-top: 25px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+            td { border-bottom: 1px solid #eee; padding: 12px; font-size: 14px; }
+            tr:hover { background-color: #f9f9f9; }
+            .time-col { font-weight: bold; color: #333; width: 100px; }
         </style>
     </head>
     <body>
-        <h1>Połączony Plan Zajęć</h1>
+        <div class="container">
+            <h1>Mój Połączony Harmonogram</h1>
     """
 
     for date in sorted(combined_plan.keys()):
         html_content += f"<div class='date-header'>{date}</div>"
         html_content += "<table>"
-        html_content += "".join(combined_plan[date])
+        
+        sorted_entries = sorted(combined_plan[date], key=lambda x: x[0])
+        
+        for _, row_html in sorted_entries:
+            html_content += row_html
+            
         html_content += "</table>"
 
-    html_content += "</body></html>"
+    html_content += "</div></body></html>"
     return html_content
