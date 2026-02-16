@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime, timedelta
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 import httpx
@@ -48,7 +49,9 @@ async def get_plan_data(url: str, color: str) -> dict:
         return date_dictionary
 
 def get_date_cookie():
-    return "RadioList_TerminGr=2026,2,19%5C2026,2,24%5C1"
+    today = datetime.now()
+    week = datetime.now() + timedelta(days=7)
+    return f"RadioList_TerminGr={today.year},{today.month},{today.day}%5C{week.year},{week.month},{week.day}%5C1"
 
 @app.get("/", response_class=HTMLResponse)
 async def my_combined_plan():
