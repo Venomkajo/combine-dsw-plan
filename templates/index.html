@@ -8,6 +8,18 @@
     <link rel="icon" href="../static/images/favicon.png" type="image/png">
 </head>
 <body>
+    <form method="get" action="/">
+        <div class="selection-container">
+            <div class="date-selection">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" required>
+            </div>
+            <div class="date-selection">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" required>
+            </div>
+        </div>
+        <button type="submit">Submit</button>
     <div class="container">
         <h1>Harmonogram</h1>
         {{ content | safe }}

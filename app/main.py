@@ -1,5 +1,6 @@
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import date, timedelta
+from typing import Optional
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -14,10 +15,10 @@ app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-async def get_plan_data(url: str) -> dict:
+async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
     async with httpx.AsyncClient() as client:
         # Use headers to look like a real browser
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36", "Cookie": get_date_cookie()}
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36", "Cookie": get_date_cookie(start_date, end_date)}
         response = await client.get(url, headers=headers)
         
         soup = BeautifulSoup(response.text, "html.parser")
@@ -54,17 +55,17 @@ async def get_plan_data(url: str) -> dict:
 
         return date_dictionary
 
-def get_date_cookie():
-    today = datetime.now()
-    week = datetime.now() + timedelta(days=7)
+def get_date_cookie(start_date: date, end_date: date) -> str:
+    today = start_date
+    week = end_date
     return f"RadioList_TerminGr={today.year},{today.month},{today.day}%5C{week.year},{week.month},{week.day}%5C1"
 
 @app.get("/", response_class=HTMLResponse)
-async def my_combined_plan(request: Request):
+async def my_combined_plan(start_date: Optional[date] = date.today(), end_date: Optional[date] = date.today() + timedelta(days=7), request: Request = None):
 
     # Fetch data
-    plan1 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20153")
-    plan2 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18909")
+    plan1 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20153", start_date=start_date, end_date=end_date)
+    plan2 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18909", start_date=start_date, end_date=end_date)
 
     # Combine keys (dates)
     all_dates = sorted(set(plan1.keys()) | set(plan2.keys()))
