@@ -2,10 +2,13 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 import httpx
 from bs4 import BeautifulSoup
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 async def get_plan_data(url: str) -> dict:
     async with httpx.AsyncClient() as client:
@@ -67,6 +70,7 @@ async def my_combined_plan():
     all_dates = sorted(set(plan1.keys()) | set(plan2.keys()))
     
     html_content = f"""
+    <!DOCTYPE html>
     <html>
     <head>
         <style>
@@ -79,6 +83,8 @@ async def my_combined_plan():
             .plan-2 {{ background-color: {color2}; }}
             .plan-3 {{ background-color: {color3}; }}
         </style>
+        <title>Harmonogram</title>
+        <link href="/static/images/favicon.png" rel="icon" type="image/png">
     </head>
     <body>
         <div class="container">
