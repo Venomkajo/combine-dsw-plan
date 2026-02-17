@@ -47,7 +47,7 @@ async def get_plan_data(url: str) -> dict:
                 if len(all_tds) > 1:
                     lesson_time = all_tds[1].get_text(strip=True)
                     if len(lesson_time) == 4:
-                        lesson_time = "0"+ lesson_time
+                        lesson_time = "0" + lesson_time
 
                 row = "".join(str(td) for td in all_tds) # Convert the row to a string of its <td> elements
                 date_dictionary[iterating_date].append((lesson_time, row))
