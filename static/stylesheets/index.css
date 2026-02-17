@@ -11,6 +11,7 @@ body {
 }
 
 .container { 
+    min-width: 900px;
     max-width: 900px; 
     margin: auto; 
     background: white; 
@@ -54,6 +55,7 @@ td {
 }
 
 form {
+    min-width: 900px;
     max-width: 900px;
     margin: 0 auto 30px auto;
     background: white;
