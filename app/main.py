@@ -6,8 +6,16 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import httpx
+import asyncio
 from bs4 import BeautifulSoup
 
+PLAN_LINKS = {
+    "INT-MWF-WykS": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20153", 
+    "INT-MWF-1S": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20380", 
+    "INT-MWF-2S": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20381",
+    "IAiSC-WykS": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18909",
+    "IAiSC-1S": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18910",
+    "IAiSC-2S": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18911"}
 
 templates = Jinja2Templates(directory="templates")
 
@@ -61,11 +69,13 @@ def get_date_cookie(start_date: date, end_date: date) -> str:
     return f"RadioList_TerminGr={today.year},{today.month},{today.day}%5C{week.year},{week.month},{week.day}%5C1"
 
 @app.get("/", response_class=HTMLResponse)
-async def my_combined_plan(start_date: Optional[date] = date.today(), end_date: Optional[date] = date.today() + timedelta(days=7), request: Request = None):
+async def my_combined_plan(start_date: Optional[date] = date.today(), end_date: Optional[date] = date.today() + timedelta(days=7), plan1: Optional[str] = "INT-MWF-WykS", plan2: Optional[str] = "IAiSC-WykS", request: Request = None):
 
     # Fetch data
-    plan1 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20153", start_date=start_date, end_date=end_date)
-    plan2 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18909", start_date=start_date, end_date=end_date)
+    plan1, plan2 = await asyncio.gather(
+        get_plan_data(PLAN_LINKS[plan1], start_date=start_date, end_date=end_date),
+        get_plan_data(PLAN_LINKS[plan2], start_date=start_date, end_date=end_date)
+    )
 
     # Combine keys (dates)
     all_dates = sorted(set(plan1.keys()) | set(plan2.keys()))
@@ -100,4 +110,4 @@ async def my_combined_plan(start_date: Optional[date] = date.today(), end_date: 
             
         html_content += "</table>"
 
-    return templates.TemplateResponse("index.html", {"request": request, "content": html_content})
+    return templates.TemplateResponse("index.html", {"request": request, "content": html_content, "start_date": start_date, "end_date": end_date})
