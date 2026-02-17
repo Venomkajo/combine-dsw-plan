@@ -1,10 +1,14 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 import httpx
 from bs4 import BeautifulSoup
+
+
+templates = Jinja2Templates(directory="templates")
 
 app = FastAPI()
 
@@ -56,11 +60,7 @@ def get_date_cookie():
     return f"RadioList_TerminGr={today.year},{today.month},{today.day}%5C{week.year},{week.month},{week.day}%5C1"
 
 @app.get("/", response_class=HTMLResponse)
-async def my_combined_plan():
-    # Define colors
-    color1 = "oklch(44.3% 0.11 240.79)" # Blue-ish
-    color2 = "oklch(41% 0.159 10.272)"  # Red-ish
-    color3 = "oklch(50% 0.2 120)"       # Green-ish
+async def my_combined_plan(request: Request):
 
     # Fetch data
     plan1 = await get_plan_data("https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20153")
@@ -69,27 +69,7 @@ async def my_combined_plan():
     # Combine keys (dates)
     all_dates = sorted(set(plan1.keys()) | set(plan2.keys()))
     
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body {{ font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 20px; }}
-            .container {{ max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-            .date-header {{ background-color: #333; color: white; padding: 12px; font-weight: bold; border-radius: 4px; margin-top: 25px; }}
-            table {{ width: 100%; border-collapse: collapse; margin-top: 5px; }}
-            td {{ border-bottom: 1px solid rgba(255,255,255,0.1); padding: 12px; font-size: 14px; color: white; }}
-            .plan-1 {{ background-color: {color1}; }}
-            .plan-2 {{ background-color: {color2}; }}
-            .plan-3 {{ background-color: {color3}; }}
-        </style>
-        <title>Harmonogram</title>
-        <link href="/static/images/favicon.png" rel="icon" type="image/png">
-    </head>
-    <body>
-        <div class="container">
-            <h1>Harmonogram Połączony</h1>
-    """
+    html_content = ""
 
     for date in all_dates:
         html_content += f"<div class='date-header'>{date}</div><table>"
@@ -119,5 +99,4 @@ async def my_combined_plan():
             
         html_content += "</table>"
 
-    html_content += "</div><footer>Made by Venomkajo at <a href='https://github.com/Venomkajo/combine-dsw-plan'>GitHub</a>.</footer></body></html>"
-    return html_content
+    return templates.TemplateResponse("index.html", {"request": request, "content": html_content})
