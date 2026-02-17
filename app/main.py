@@ -113,5 +113,5 @@ async def my_combined_plan():
             
         html_content += "</table>"
 
-    html_content += "</div></body></html>"
+    html_content += "</div><footer>Made by Venomkajo at <a href='https://github.com/Venomkajo/combine-dsw-plan'>GitHub</a>.</footer></body></html>"
     return html_content
