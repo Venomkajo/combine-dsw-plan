@@ -52,3 +52,90 @@ td {
 .plan-3 { 
     background-color: var(--color3); 
 }
+
+form {
+    max-width: 900px;
+    margin: 0 auto 30px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.selection-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.date-selection, .plan-selection {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #444;
+    margin-left: 2px;
+}
+
+input[type="date"], 
+select {
+    padding: 10px 12px;
+    border: 2px solid #e1e4e8;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #333;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+input[type="date"]:focus, 
+select:focus {
+    border-color: var(--color1);
+    box-shadow: 0 0 0 3px rgba(68, 110, 240, 0.1);
+}
+
+button[type="submit"] {
+    background-color: #333;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    align-self: flex-start;
+    margin-top: 10px;
+}
+
+button[type="submit"]:hover {
+    background-color: #000;
+}
+
+button[type="submit"]:active {
+    transform: scale(0.98);
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+footer a {
+    color: var(--color1);
+    text-decoration: none;
+    font-weight: 600;
+}
