@@ -4,15 +4,49 @@
     --color3: oklch(50% 0.2 120);
 }
 
-body { 
+body {
+    min-width: 1000px; 
     font-family: 'Segoe UI', sans-serif; 
     background-color: #f0f2f5; 
     padding: 20px; 
 }
 
+.legend { 
+    text-align: center; 
+    margin-bottom: 20px; 
+}
+
+.legend-item { 
+    display: inline-block; 
+    margin: 0 15px; 
+    font-size: 1rem; 
+    color: #555; 
+}
+
+.color1 { 
+    background-color: var(--color1); 
+    color: white; 
+    padding: 10px; 
+    border-radius: 4px; 
+}
+
+.color2 { 
+    background-color: var(--color2); 
+    color: white; 
+    padding: 10px; 
+    border-radius: 4px; 
+}
+
+.color3 { 
+    background-color: var(--color3); 
+    color: white; 
+    padding: 10px; 
+    border-radius: 4px; 
+}
+
 .container { 
-    min-width: 900px;
-    max-width: 900px; 
+    width: 90%;
+    min-width: 1000px;
     margin: auto; 
     background: white; 
     padding: 20px; 
@@ -55,8 +89,8 @@ td {
 }
 
 form {
-    min-width: 900px;
-    max-width: 900px;
+    width: 90%;
+    min-width: 1000px;
     margin: 0 auto 30px auto;
     background: white;
     padding: 25px;
