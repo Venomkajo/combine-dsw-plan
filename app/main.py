@@ -110,4 +110,4 @@ async def my_combined_plan(start_date: Optional[date] = date.today(), end_date: 
             
         html_content += "</table>"
 
-    return templates.TemplateResponse("index.html", {"request": request, "content": html_content, "start_date": start_date, "end_date": end_date})
+    return templates.TemplateResponse("index.html", {"request": request, "content": html_content, "start_date": start_date, "end_date": end_date, "plan1": plan1, "plan2": plan2})
