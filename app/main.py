@@ -71,6 +71,9 @@ def get_date_cookie(start_date: date, end_date: date) -> str:
 @app.get("/", response_class=HTMLResponse)
 async def my_combined_plan(start_date: Optional[date] = date.today(), end_date: Optional[date] = date.today() + timedelta(days=7), plan1: Optional[str] = "INT-MWF-WykS", plan2: Optional[str] = "IAiSC-WykS", request: Request = None):
 
+    plan1_name = plan1
+    plan2_name = plan2
+
     # Fetch data
     plan1, plan2 = await asyncio.gather(
         get_plan_data(PLAN_LINKS[plan1], start_date=start_date, end_date=end_date),
@@ -110,4 +113,4 @@ async def my_combined_plan(start_date: Optional[date] = date.today(), end_date: 
             
         html_content += "</table>"
 
-    return templates.TemplateResponse("index.html", {"request": request, "content": html_content, "start_date": start_date, "end_date": end_date, "plan1": plan1, "plan2": plan2})
+    return templates.TemplateResponse("index.html", {"request": request, "content": html_content, "start_date": start_date, "end_date": end_date, "plan1_name": plan1_name, "plan2_name": plan2_name})
