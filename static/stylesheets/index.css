@@ -2,6 +2,12 @@
     --color1: oklch(44.3% 0.11 240.79);
     --color2: oklch(41% 0.159 10.272);
     --color3: oklch(50% 0.2 120);
+
+    --border-canceled: oklch(60% 0.15 25);
+    --border-distance: oklch(85% 0.15 90);
+    --border-moodle: oklch(55% 0.2 260);
+    --border-zaliczenie: oklch(75% 0.15 150);
+    --border-regular: oklch(30% 0 0);
 }
 
 body {
@@ -184,4 +190,24 @@ form .error {
     border-radius: 8px;
     margin-top: 10px;
     font-size: 0.9rem;
+}
+
+.canceled-border {
+    border-left: 10px solid var(--border-canceled) !important;
+}
+
+.distance-learning-border {
+    border-left: 10px solid var(--border-distance) !important;
+}
+
+.moodle-border {
+    border-left: 10px solid var(--border-moodle) !important;
+}
+
+.exam-border {
+    border-left: 10px solid var(--border-zaliczenie) !important;
+}
+
+.regular-border {
+    border-left: 10px solid var(--border-regular) !important;
 }

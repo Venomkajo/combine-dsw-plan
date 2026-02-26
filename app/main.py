@@ -94,11 +94,11 @@ async def my_combined_plan(
         
         # Identify overlaps and unique items
         for item in (entries1 & entries2):
-            day_entries.append({"time": item[0], "content": item[1], "css": "plan-3"})
+            day_entries.append({"time": item[0], "content": item[1], "css": f"{get_css_class(item[1], 'plan-3')}"})
         for item in (entries1 - entries2):
-            day_entries.append({"time": item[0], "content": item[1], "css": "plan-1"})
+            day_entries.append({"time": item[0], "content": item[1], "css": f"{get_css_class(item[1], 'plan-1')}"})
         for item in (entries2 - entries1):
-            day_entries.append({"time": item[0], "content": item[1], "css": "plan-2"})
+            day_entries.append({"time": item[0], "content": item[1], "css": f"{get_css_class(item[1], 'plan-2')}"})
         
         # Sort day by time
         day_entries.sort(key=lambda x: x["time"])
@@ -116,3 +116,18 @@ async def my_combined_plan(
         "plan1_name": plan1_name,
         "plan2_name": plan2_name
     })
+
+def get_css_class(content: str, original_class: str) -> str:
+
+    BORDER_CLASSES = {
+        "Zajęcia odwołane": "canceled-border",
+        "Distance learning": "distance-learning-border",
+        "Platforma Moodle": "moodle-border",
+        "<td>Zaliczenie</td>": "exam-border"
+    }
+
+    for key, value in BORDER_CLASSES.items():
+        if key in content:
+            return f"{original_class} {value}"
+        
+    return f"{original_class} regular-border"
