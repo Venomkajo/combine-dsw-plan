@@ -69,48 +69,50 @@ def get_date_cookie(start_date: date, end_date: date) -> str:
     return f"RadioList_TerminGr={today.year},{today.month},{today.day}%5C{week.year},{week.month},{week.day}%5C1"
 
 @app.get("/", response_class=HTMLResponse)
-async def my_combined_plan(start_date: Optional[date] = date.today(), end_date: Optional[date] = date.today() + timedelta(days=7), plan1: Optional[str] = "INT-MWF-WykS", plan2: Optional[str] = "IAiSC-WykS", request: Request = None):
-
-    plan1_name = plan1
-    plan2_name = plan2
-
-    # Fetch data
-    plan1, plan2 = await asyncio.gather(
-        get_plan_data(PLAN_LINKS[plan1], start_date=start_date, end_date=end_date),
-        get_plan_data(PLAN_LINKS[plan2], start_date=start_date, end_date=end_date)
+async def my_combined_plan(
+    request: Request,
+    start_date: Optional[date] = date.today(), 
+    end_date: Optional[date] = date.today() + timedelta(days=7), 
+    plan1_name: Optional[str] = "INT-MWF-WykS", 
+    plan2_name: Optional[str] = "IAiSC-WykS"
+):
+    # 1. Fetch data
+    p1_data, p2_data = await asyncio.gather(
+        get_plan_data(PLAN_LINKS[plan1_name], start_date=start_date, end_date=end_date),
+        get_plan_data(PLAN_LINKS[plan2_name], start_date=start_date, end_date=end_date)
     )
 
-    # Combine keys (dates)
-    all_dates = sorted(set(plan1.keys()) | set(plan2.keys()))
-    
-    html_content = ""
+    # 2. Process Data
+    all_dates = sorted(set(p1_data.keys()) | set(p2_data.keys()))
+    structured_plan = []
 
-    for date in all_dates:
-        html_content += f"<div class='date-header'>{date}</div><table>"
+    for d in all_dates:
+        entries1 = set(p1_data.get(d, []))
+        entries2 = set(p2_data.get(d, []))
         
-        # Create sets of (time, content) for comparison
-        entries1 = plan1.get(date, [])
-        entries2 = plan2.get(date, [])
-        
-        set1 = set(entries1)
-        set2 = set(entries2)
+        day_entries = []
         
         # Identify overlaps and unique items
-        overlap = set1 & set2
-        only_plan1 = set1 - set2
-        only_plan2 = set2 - set1
+        for item in (entries1 & entries2):
+            day_entries.append({"time": item[0], "content": item[1], "css": "plan-3"})
+        for item in (entries1 - entries2):
+            day_entries.append({"time": item[0], "content": item[1], "css": "plan-1"})
+        for item in (entries2 - entries1):
+            day_entries.append({"time": item[0], "content": item[1], "css": "plan-2"})
         
-        # Combine and sort all by time
-        combined_rows = []
-        for item in overlap: combined_rows.append((item[0], item[1], "plan-3"))
-        for item in only_plan1: combined_rows.append((item[0], item[1], "plan-1"))
-        for item in only_plan2: combined_rows.append((item[0], item[1], "plan-2"))
+        # Sort day by time
+        day_entries.sort(key=lambda x: x["time"])
         
-        combined_rows.sort(key=lambda x: x[0]) # Sort by time
+        structured_plan.append({
+            "date": d,
+            "rows": day_entries
+        })
 
-        for time, content, css_class in combined_rows:
-            html_content += f"<tr class='{css_class}'>{content}</tr>"
-            
-        html_content += "</table>"
-
-    return templates.TemplateResponse("index.html", {"request": request, "content": html_content, "start_date": start_date, "end_date": end_date, "plan1_name": plan1_name, "plan2_name": plan2_name})
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "plan_data": structured_plan,
+        "start_date": start_date,
+        "end_date": end_date,
+        "plan1_name": plan1_name,
+        "plan2_name": plan2_name
+    })

@@ -55,7 +55,20 @@
     </form>
     <div class="container">
         <h1>Harmonogram</h1>
-        {{ content | safe }}
+    {% for day in plan_data %}
+        <div class="date-header">{{ day.date }}</div>
+        <table>
+            <tbody>
+                {% for row in day.rows %}
+                <tr class="{{ row.css }}">
+                    {{ row.content | safe }}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No plans found for this period. Make sure the dates are correct, and the time between start and end date is not too long (max 7 days).</p>
+    {% endfor %}
     </div>
     <footer>Made by Venomkajo at <a href='https://github.com/Venomkajo/combine-dsw-plan'>GitHub</a>.</footer>
 </body>
