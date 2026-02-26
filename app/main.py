@@ -73,13 +73,14 @@ async def my_combined_plan(
     request: Request,
     start_date: Optional[date] = date.today(), 
     end_date: Optional[date] = date.today() + timedelta(days=7), 
-    plan1_name: Optional[str] = "INT-MWF-WykS", 
-    plan2_name: Optional[str] = "IAiSC-WykS"
+    plan1: Optional[str] = "INT-MWF-WykS", 
+    plan2: Optional[str] = "IAiSC-WykS"
 ):
+
     # 1. Fetch data
     p1_data, p2_data = await asyncio.gather(
-        get_plan_data(PLAN_LINKS[plan1_name], start_date=start_date, end_date=end_date),
-        get_plan_data(PLAN_LINKS[plan2_name], start_date=start_date, end_date=end_date)
+        get_plan_data(PLAN_LINKS[plan1], start_date=start_date, end_date=end_date),
+        get_plan_data(PLAN_LINKS[plan2], start_date=start_date, end_date=end_date)
     )
 
     # 2. Process Data
@@ -113,8 +114,8 @@ async def my_combined_plan(
         "plan_data": structured_plan,
         "start_date": start_date,
         "end_date": end_date,
-        "plan1_name": plan1_name,
-        "plan2_name": plan2_name
+        "plan1": plan1,
+        "plan2": plan2
     })
 
 def get_css_class(content: str, original_class: str) -> str:
