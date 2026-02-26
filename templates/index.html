@@ -6,6 +6,7 @@
     <title>Harmonogram</title>
     <link rel="stylesheet" href="../static/stylesheets/index.css">
     <link rel="icon" href="../static/images/favicon.png" type="image/png">
+    <script src="../static/javascript/validation.js"></script>
 </head>
 <body>
     <div class="legend">
@@ -22,7 +23,7 @@
             <span>Both Plans</span>
         </div>
     </div>
-    <form method="get" action="/">
+    <form method="get" action="/" onsubmit="return validateForm()">
         <div class="selection-container">
             <div class="date-selection">
                 <label for="start_date">Start Date:</label>
@@ -51,6 +52,7 @@
                 </select>
             </div>
         </div>
+        <div class="error" id="form-error-message" hidden></div>
         <button type="submit">Submit</button>
     </form>
     <div class="container">
