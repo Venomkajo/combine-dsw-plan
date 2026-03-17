@@ -40,6 +40,10 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
             for garbage in row.find_all(['script', 'img', 'input']): # Remove unwanted tags like <script>, <img>, and <input>
                 garbage.decompose()
 
+            for button in row.find_all('button'): # Remove <button> tags but keep their content field
+                text = button.get("data-bs-content", "")
+                button.replace_with(text)
+
             for links in row.find_all('a'): # Remove <a> tags but keep their text
                 links.unwrap()
 
@@ -57,6 +61,8 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
                     lesson_time = all_tds[1].get_text(strip=True)
                     if len(lesson_time) == 4:
                         lesson_time = "0" + lesson_time
+                else:
+                    lesson_time = "ERROR"
 
                 row = "".join(str(td) for td in all_tds) # Convert the row to a string of its <td> elements
                 date_dictionary[iterating_date].append((lesson_time, row))
