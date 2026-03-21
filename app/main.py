@@ -32,7 +32,7 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
             "Accept-Language": "en-US,en;q=0.5",
             "Referer": "https://harmonogramy.dsw.edu.pl/",
             "Connection": "keep-alive",
-            "Cookie": get_date_cookie(start_date, end_date)
+            "Cookie": f"{get_date_cookie(start_date, end_date)}; wdlang=pl"
         }
         
         try:
@@ -82,9 +82,9 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
         return date_dictionary
 
 def get_date_cookie(start_date: date, end_date: date) -> str:
-    today = start_date
-    week = end_date
-    return f"RadioList_TerminGr={today.year},{today.month},{today.day}%5C{week.year},{week.month},{week.day}%5C1"
+    date_from = start_date
+    date_to = end_date
+    return f"RadioList_TerminGr={date_from.year},{date_from.month},{date_from.day}%5C{date_to.year},{date_to.month},{date_to.day}%5C1"
 
 @app.get("/", response_class=HTMLResponse)
 async def my_combined_plan(
