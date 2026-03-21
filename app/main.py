@@ -26,9 +26,21 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
     async with httpx.AsyncClient() as client:
         # Use headers to look like a real browser
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36", "Cookie": get_date_cookie(start_date, end_date)}
-        response = await client.get(url, headers=headers)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Referer": "https://harmonogramy.dsw.edu.pl/",
+            "Connection": "keep-alive",
+            "Cookie": get_date_cookie(start_date, end_date)
+        }
         
+        try:
+            response = await client.get(url, headers=headers)
+        except httpx.HTTPError as e:
+            print(f"Error fetching {url}: {e}")
+            return {}
+
         soup = BeautifulSoup(response.text, "html.parser")
 
         rows = soup.select("tr[id*='gridViewPlanyGrup_DX']") # Select rows with IDs containing 'gridViewPlanyGrup_DX'
