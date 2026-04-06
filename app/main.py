@@ -10,12 +10,12 @@ import asyncio
 from bs4 import BeautifulSoup
 
 PLAN_LINKS = {
-    "INT-MWF-WykS": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20153", 
-    "INT-MWF-1S": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20380", 
-    "INT-MWF-2S": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/20381",
-    "IAiSC-WykS": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18909",
-    "IAiSC-1S": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18910",
-    "IAiSC-2S": "https://harmonogramy.dsw.edu.pl/Plany/PlanyGrup/18911"}
+    "INT-MWF-WykS": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20153", 
+    "INT-MWF-1S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20380", 
+    "INT-MWF-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20381",
+    "IAiSC-WykS": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18909",
+    "IAiSC-1S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18910",
+    "IAiSC-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18911"}
 
 templates = Jinja2Templates(directory="templates")
 
@@ -30,7 +30,7 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,webp,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.5",
-            "Referer": "https://harmonogramy.dsw.edu.pl/",
+            "Referer": "https://harmonogramy.ideis.pl/",
             "Connection": "keep-alive",
             "Cookie": f"{get_date_cookie(start_date, end_date)}; wdlang=pl"
         }
