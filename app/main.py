@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 import httpx
 import asyncio
 from bs4 import BeautifulSoup
+import os
 
 PLAN_LINKS = {
     "INT-MWF-WykS": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20153", 
@@ -17,11 +18,14 @@ PLAN_LINKS = {
     "IAiSC-1S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18910",
     "IAiSC-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18911"}
 
-templates = Jinja2Templates(directory="templates")
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
 async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
     async with httpx.AsyncClient() as client:
