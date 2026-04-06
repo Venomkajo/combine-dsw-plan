@@ -2,7 +2,7 @@
 
 A FastAPI-based web utility designed to scrape, compare, and merge university schedules from the DSW portal for this particular semester. This tool allows students to view two different group schedules in a single, color-coded timeline to identify overlaps and gaps.
 
-**Live Demo:** [https://combine-dsw-plan.onrender.com/](https://combine-dsw-plan.onrender.com/) *(Subject to availability)*
+**Live Demo:** [https://combine-dsw-plan.vercel.app/](https://combine-dsw-plan.vercel.app/) *(Subject to availability)*
 
 ---
 
@@ -12,6 +12,8 @@ A FastAPI-based web utility designed to scrape, compare, and merge university sc
 * **Smart Parsing:** Extracts and cleans HTML table data from the DSW schedule system, stripping unnecessary scripts and styles while maintaining readability.
 * **Custom Date Ranges:** Users can specify start and end dates via a simple web interface. Maximum of around one week, due to scraping limitations.
 * **Color-Coded UI:** Distinct CSS classes differentiate between Plan A, Plan B, and overlapping sessions.
+
+**Currently plans only for INT-MWF 2026 and IAiSC 2026.**
 
 ---
 
