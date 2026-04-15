@@ -6,7 +6,7 @@
     <title>Harmonogram</title>
     <link rel="stylesheet" href="../static/stylesheets/index.css">
     <link rel="icon" href="../static/images/favicon.png" type="image/png">
-    <script src="../static/javascript/validation.js" defer></script>
+    <script src="../static/javascript/index.js" defer></script>
 </head>
 <body>
     <div class="legend">
@@ -53,7 +53,11 @@
             </div>
         </div>
         <div class="error" id="form-error-message" hidden></div>
-        <button type="submit">Submit</button>
+        <div class="button-container">
+            <button type="button" id="previous-week-button">Prev Week</button>
+            <button type="submit">Submit</button>
+            <button type="button" id="next-week-button">Next Week</button>
+        </div>
     </form>
     <div class="container">
         <h1>Harmonogram</h1>

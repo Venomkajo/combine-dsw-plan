@@ -35,6 +35,28 @@ function autoUpdateEndDate() {
     return;
 }
 
+function updateWeek() {
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    let startDate = new Date(startDateInput.value);
+    let endDate = new Date(endDateInput.value);
+
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return;
+    }
+
+    if (this.id === 'previous-week-button') {
+        startDate.setDate(startDate.getDate() - 7);
+        endDate.setDate(endDate.getDate() - 7);
+    } else if (this.id === 'next-week-button') {
+        startDate.setDate(startDate.getDate() + 7);
+        endDate.setDate(endDate.getDate() + 7);
+    }
+
+    startDateInput.value = startDate.toISOString().split('T')[0];
+    endDateInput.value = endDate.toISOString().split('T')[0];
+}
+
 function addEventListeners() {
     const form = document.getElementById('plan_form');
     form.addEventListener('submit', function(event) {
@@ -45,6 +67,11 @@ function addEventListeners() {
 
     const startDateInput = document.getElementById('start_date');
     startDateInput.addEventListener('change', autoUpdateEndDate);
+
+    const previousWeekButton = document.getElementById('previous-week-button');
+    const nextWeekButton = document.getElementById('next-week-button');
+    previousWeekButton.addEventListener('click', updateWeek);
+    nextWeekButton.addEventListener('click', updateWeek);
 }
 
 document.addEventListener('DOMContentLoaded', addEventListeners);
