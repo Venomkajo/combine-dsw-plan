@@ -103,7 +103,14 @@ async def my_combined_plan(
     custom_plan2_name: Optional[str] = ""
 ):
 
-    if plan1 == "custom" and (not custom_plan1_name or not validate_link(custom_plan1_name)) or plan2 == "custom" and (not custom_plan2_name or not validate_link(custom_plan2_name)):
+    invalid_custom_plan1 = plan1 == "custom" and (
+        not custom_plan1_name or not validate_link(custom_plan1_name)
+    )
+    invalid_custom_plan2 = plan2 == "custom" and (
+        not custom_plan2_name or not validate_link(custom_plan2_name)
+    )
+
+    if invalid_custom_plan1 or invalid_custom_plan2:
         return templates.TemplateResponse("index.html", {
             "request": request,
             "plan_data": [],
@@ -113,7 +120,7 @@ async def my_combined_plan(
             "plan2": plan2,
             "custom_plan1_name": custom_plan1_name,
             "custom_plan2_name": custom_plan2_name,
-            "error_message": "Custom plans selected but no valid links provided. Please enter a valid link for all custom plans. Currently supported custom website: https://harmonogramy.ideis.pl/"
+            "error_message": "Custom plans selected but no valid links provided. Please enter a valid link for all custom plans. Currently supported custom link format: https://harmonogramy.ideis.pl/Plany/"
         })
 
     # 1. Fetch data
