@@ -48,7 +48,8 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        rows = soup.select("tr[id*='gridViewPlanyGrup_DX']") # Select rows with IDs containing 'gridViewPlanyGrup_DX'
+        # Match any DevExpress GridView row (both group and teacher pages)
+        rows = soup.select("tr[id*='_DX']")
 
         date_dictionary = defaultdict(list)
         iterating_date = "ERROR"
@@ -68,11 +69,11 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
                 tag.attrs = {} 
 
             row_id = row.get("id", "")
-            if "gridViewPlanyGrup_DXGroupRowExp" in row_id:
+            if "DXGroupRowExp" in row_id:
                 # Extract the date from the row's inner text
                 date_text = row.get_text(strip=True)
                 iterating_date = date_text
-            elif "gridViewPlanyGrup_DXDataRow" in row_id:
+            elif "DXDataRow" in row_id:
                 all_tds = row.find_all("td")
                 if len(all_tds) > 1:
                     lesson_time = all_tds[1].get_text(strip=True)
