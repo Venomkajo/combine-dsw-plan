@@ -1,3 +1,4 @@
+// validating form inputs before submission
 function validateForm() {
     const startDateInput = document.getElementById('start_date').value;
     const endDateInput = document.getElementById('end_date').value;
@@ -20,6 +21,7 @@ function validateForm() {
     }
 }
 
+// automatically update end date to be 7 days after start date when start date changes
 function autoUpdateEndDate() {
     const startDateInput = document.getElementById('start_date');
     const endDateInput = document.getElementById('end_date');
@@ -35,6 +37,7 @@ function autoUpdateEndDate() {
     return;
 }
 
+// update start and end dates by 7 days when previous/next week buttons are clicked
 function updateWeek() {
     const startDateInput = document.getElementById('start_date');
     const endDateInput = document.getElementById('end_date');
@@ -57,6 +60,27 @@ function updateWeek() {
     endDateInput.value = endDate.toISOString().split('T')[0];
 }
 
+// show/hide custom plan input fields based on dropdown selection
+function toggleCustomPlanInputs() {
+    const plan1Select = document.getElementById('plan1');
+    const plan2Select = document.getElementById('plan2');
+    const customPlan1Inputs = document.getElementById('custom-plan1-inputs');
+    const customPlan2Inputs = document.getElementById('custom-plan2-inputs');
+
+    if (plan1Select.value === "custom") {
+        customPlan1Inputs.style.display = "block";
+    } else {
+        customPlan1Inputs.style.display = "none";
+    }
+
+    if (plan2Select.value === "custom") {
+        customPlan2Inputs.style.display = "block";
+    } else {
+        customPlan2Inputs.style.display = "none";
+    }
+}
+
+// add event listeners for all relevant functions
 function addEventListeners() {
     const form = document.getElementById('plan_form');
     form.addEventListener('submit', function(event) {
@@ -72,6 +96,13 @@ function addEventListeners() {
     const nextWeekButton = document.getElementById('next-week-button');
     previousWeekButton.addEventListener('click', updateWeek);
     nextWeekButton.addEventListener('click', updateWeek);
+
+    const plan1Select = document.getElementById('plan1');
+    const plan2Select = document.getElementById('plan2');
+    plan1Select.addEventListener('change', toggleCustomPlanInputs);
+    plan2Select.addEventListener('change', toggleCustomPlanInputs);
+
+    toggleCustomPlanInputs();
 }
 
 document.addEventListener('DOMContentLoaded', addEventListeners);

@@ -9,14 +9,15 @@
     <script src="../static/javascript/index.js" defer></script>
 </head>
 <body>
+    <div class="error_message" id="error-message" {% if error_message %}style="display: block;"{% else %}style="display: none"{% endif %}>{{ error_message }}</div>
     <div class="legend">
         <div class="legend-item">
             <div class="color-box color1"></div>
-            <span>INT-MWF-WykS</span>
+            <span>INT-MWF-WykS (Custom 1)</span>
         </div>
         <div class="legend-item">
             <div class="color-box color2"></div>
-            <span>IAiSC-WykS</span>
+            <span>IAiSC-WykS (Custom 2)</span>
         </div>
         <div class="legend-item">
             <div class="color-box color3"></div>
@@ -41,7 +42,12 @@
                     <option value="INT-MWF-WykS" {% if plan1 == "INT-MWF-WykS" %}selected{% endif %}>INT-MWF-WykS</option>
                     <option value="INT-MWF-1S" {% if plan1 == "INT-MWF-1S" %}selected{% endif %}>INT-MWF-1S</option>
                     <option value="INT-MWF-2S" {% if plan1 == "INT-MWF-2S" %}selected{% endif %}>INT-MWF-2S</option>
+                    <option value="custom" {% if plan1 == "custom" %}selected{% endif %}>Custom 1</option>
                 </select>
+                <div class="custom-plan-inputs" id="custom-plan1-inputs" style="display: none;">
+                    <label for="custom-plan1-name">Custom Plan 1 Name:</label>
+                    <input type="text" id="custom-plan1-name" name="custom_plan1_name" value="{{ custom_plan1_name }}" autocomplete="off">
+                </div>
             </div>
             <div class="plan-selection">
                 <label for="plan2">Plan 2:</label>
@@ -49,7 +55,12 @@
                     <option value="IAiSC-WykS" {% if plan2 == "IAiSC-WykS" %}selected{% endif %}>IAiSC-WykS</option>
                     <option value="IAiSC-1S" {% if plan2 == "IAiSC-1S" %}selected{% endif %}>IAiSC-1S</option>
                     <option value="IAiSC-2S" {% if plan2 == "IAiSC-2S" %}selected{% endif %}>IAiSC-2S</option>
+                    <option value="custom" {% if plan2 == "custom" %}selected{% endif %}>Custom 2</option>
                 </select>
+                <div class="custom-plan-inputs" id="custom-plan2-inputs" style="display: none;">
+                    <label for="custom-plan2-name">Custom Plan 2 Name:</label>
+                    <input type="text" id="custom-plan2-name" name="custom_plan2_name" value="{{ custom_plan2_name }}" autocomplete="off">
+                </div>
             </div>
         </div>
         <div class="error" id="form-error-message" hidden></div>
@@ -73,7 +84,8 @@
             </tbody>
         </table>
     {% else %}
-        <p>No plans found for this period. Make sure the dates are correct, and the time between start and end date is not too long (max 7 days). It is also possible the app is being blocked by the server.</p>
+        <p>Error: No plans found for this period.</p>
+        <p>Make sure the dates are within the allowed range (a maximum of 7 days). Make sure the selected plans are valid and that the custom plan links (if selected) are correct and supported. Currently supported custom website: https://harmonogramy.ideis.pl/Plany/</p>
     {% endfor %}
     </div>
     <footer>Made by Venomkajo at <a href='https://github.com/Venomkajo/combine-dsw-plan'>GitHub</a>.</footer>

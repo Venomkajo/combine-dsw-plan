@@ -16,7 +16,8 @@ PLAN_LINKS = {
     "INT-MWF-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20381",
     "IAiSC-WykS": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18909",
     "IAiSC-1S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18910",
-    "IAiSC-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18911"}
+    "IAiSC-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18911"
+}
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -96,14 +97,47 @@ async def my_combined_plan(
     start_date: Optional[date] = date.today(), 
     end_date: Optional[date] = date.today() + timedelta(days=7), 
     plan1: Optional[str] = "INT-MWF-WykS", 
-    plan2: Optional[str] = "IAiSC-WykS"
+    plan2: Optional[str] = "IAiSC-WykS",
+    custom_plan1_name: Optional[str] = "",
+    custom_plan2_name: Optional[str] = ""
 ):
 
+    if plan1 == "custom" and (not custom_plan1_name or not validate_link(custom_plan1_name)) or plan2 == "custom" and (not custom_plan2_name or not validate_link(custom_plan2_name)):
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "plan_data": [],
+            "start_date": start_date,
+            "end_date": end_date,
+            "plan1": plan1,
+            "plan2": plan2,
+            "custom_plan1_name": custom_plan1_name,
+            "custom_plan2_name": custom_plan2_name,
+            "error_message": "Custom plans selected but no valid links provided. Please enter a valid link for all custom plans. Currently supported custom website: https://harmonogramy.ideis.pl/"
+        })
+
     # 1. Fetch data
-    p1_data, p2_data = await asyncio.gather(
-        get_plan_data(PLAN_LINKS[plan1], start_date=start_date, end_date=end_date),
-        get_plan_data(PLAN_LINKS[plan2], start_date=start_date, end_date=end_date)
-    )
+    plan1_link = PLAN_LINKS.get(plan1) if plan1 != "custom" else custom_plan1_name
+    plan2_link = PLAN_LINKS.get(plan2) if plan2 != "custom" else custom_plan2_name
+    p1_data, p2_data = {}, {}
+
+    try:
+        p1_data, p2_data = await asyncio.gather(
+            get_plan_data(plan1_link, start_date=start_date, end_date=end_date),
+            get_plan_data(plan2_link, start_date=start_date, end_date=end_date)
+        )
+    except Exception as e:
+        print(f"Error fetching plan data: {e}")
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "plan_data": [],
+            "start_date": start_date,
+            "end_date": end_date,
+            "plan1": plan1,
+            "plan2": plan2,
+            "custom_plan1_name": custom_plan1_name,
+            "custom_plan2_name": custom_plan2_name,
+            "error_message": "Error fetching plan data. Please try again later."
+        })
 
     # 2. Process Data
     all_dates = sorted(set(p1_data.keys()) | set(p2_data.keys()))
@@ -137,7 +171,10 @@ async def my_combined_plan(
         "start_date": start_date,
         "end_date": end_date,
         "plan1": plan1,
-        "plan2": plan2
+        "plan2": plan2,
+        "custom_plan1_name": custom_plan1_name,
+        "custom_plan2_name": custom_plan2_name,
+        "error_message": ""
     })
 
 def get_css_class(content: str, original_class: str) -> str:
@@ -154,3 +191,15 @@ def get_css_class(content: str, original_class: str) -> str:
             return f"{original_class} {value}"
         
     return f"{original_class} regular-border"
+
+def validate_link(link: str) -> bool:
+    if not type(link) == str:
+        return False
+    elif not link.startswith("https://harmonogramy.ideis.pl/Plany/"):
+        return False
+    else:
+        return True
+    
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=9999)
