@@ -41,7 +41,7 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
             "Accept-Language": "en-US,en;q=0.5",
             "Referer": "https://harmonogramy.ideis.pl/",
             "Connection": "keep-alive",
-            "Cookie": f"{get_date_cookie(start_date, end_date)}; wdlang=pl"
+            "Cookie": f"{get_date_cookie(start_date, end_date)} wdlang=pl"
         }
         
         try:
@@ -94,7 +94,12 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
 def get_date_cookie(start_date: date, end_date: date) -> str:
     date_from = start_date
     date_to = end_date
-    return f"RadioList_TerminGr={date_from.year},{date_from.month},{date_from.day}%5C{date_to.year},{date_to.month},{date_to.day}%5C1"
+
+    cookie_value_Gr = f"RadioList_TerminGr={date_from.year},{date_from.month},{date_from.day}%5C{date_to.year},{date_to.month},{date_to.day}%5C1"
+    cookie_value_Prow = f"RadioList_TerminProw={date_from.year},{date_from.month},{date_from.day}%5C{date_to.year},{date_to.month},{date_to.day}%5C1"
+    cookie_value_T = f"RadioList_TerminT={date_from.year},{date_from.month},{date_from.day}%5C{date_to.year},{date_to.month},{date_to.day}%5C1"
+
+    return f"{cookie_value_Gr}; {cookie_value_Prow}; {cookie_value_T};"
 
 @app.get("/", response_class=HTMLResponse)
 async def my_combined_plan(
