@@ -218,3 +218,37 @@ form .error {
 .regular-border {
     border-left: 10px solid var(--border-regular) !important;
 }
+
+.custom-plan-inputs {
+    margin-top: 10px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+}
+
+.custom-plan-inputs label {
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.custom-plan-inputs input[type="text"] {
+    padding: 8px 10px;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    width: 100%;
+    margin-top: 3px;
+    box-sizing: border-box;
+}
+
+.error-message {
+    color: #d9534f;
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    text-align: center;
+}

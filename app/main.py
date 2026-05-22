@@ -1,13 +1,17 @@
 from collections import defaultdict
 from datetime import date, timedelta
 from typing import Optional
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
 import httpx
 import asyncio
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+
 import os
 
 PLAN_LINKS = {
@@ -16,7 +20,8 @@ PLAN_LINKS = {
     "INT-MWF-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20381",
     "IAiSC-WykS": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18909",
     "IAiSC-1S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18910",
-    "IAiSC-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18911"}
+    "IAiSC-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18911"
+}
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -36,7 +41,7 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
             "Accept-Language": "en-US,en;q=0.5",
             "Referer": "https://harmonogramy.ideis.pl/",
             "Connection": "keep-alive",
-            "Cookie": f"{get_date_cookie(start_date, end_date)}; wdlang=pl"
+            "Cookie": f"{get_date_cookie(start_date, end_date)} wdlang=pl"
         }
         
         try:
@@ -47,7 +52,8 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        rows = soup.select("tr[id*='gridViewPlanyGrup_DX']") # Select rows with IDs containing 'gridViewPlanyGrup_DX'
+        # Match any DevExpress GridView row (both group and teacher pages)
+        rows = soup.select("tr[id*='_DX']")
 
         date_dictionary = defaultdict(list)
         iterating_date = "ERROR"
@@ -67,11 +73,11 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
                 tag.attrs = {} 
 
             row_id = row.get("id", "")
-            if "gridViewPlanyGrup_DXGroupRowExp" in row_id:
+            if "DXGroupRowExp" in row_id:
                 # Extract the date from the row's inner text
                 date_text = row.get_text(strip=True)
                 iterating_date = date_text
-            elif "gridViewPlanyGrup_DXDataRow" in row_id:
+            elif "DXDataRow" in row_id:
                 all_tds = row.find_all("td")
                 if len(all_tds) > 1:
                     lesson_time = all_tds[1].get_text(strip=True)
@@ -88,7 +94,12 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
 def get_date_cookie(start_date: date, end_date: date) -> str:
     date_from = start_date
     date_to = end_date
-    return f"RadioList_TerminGr={date_from.year},{date_from.month},{date_from.day}%5C{date_to.year},{date_to.month},{date_to.day}%5C1"
+
+    cookie_value_Gr = f"RadioList_TerminGr={date_from.year},{date_from.month},{date_from.day}%5C{date_to.year},{date_to.month},{date_to.day}%5C1"
+    cookie_value_Prow = f"RadioList_TerminProw={date_from.year},{date_from.month},{date_from.day}%5C{date_to.year},{date_to.month},{date_to.day}%5C1"
+    cookie_value_T = f"RadioList_TerminT={date_from.year},{date_from.month},{date_from.day}%5C{date_to.year},{date_to.month},{date_to.day}%5C1"
+
+    return f"{cookie_value_Gr}; {cookie_value_Prow}; {cookie_value_T};"
 
 @app.get("/", response_class=HTMLResponse)
 async def my_combined_plan(
@@ -96,14 +107,67 @@ async def my_combined_plan(
     start_date: Optional[date] = date.today(), 
     end_date: Optional[date] = date.today() + timedelta(days=7), 
     plan1: Optional[str] = "INT-MWF-WykS", 
-    plan2: Optional[str] = "IAiSC-WykS"
+    plan2: Optional[str] = "IAiSC-WykS",
+    custom_plan1_url: Optional[str] = "",
+    custom_plan2_url: Optional[str] = ""
 ):
 
-    # 1. Fetch data
-    p1_data, p2_data = await asyncio.gather(
-        get_plan_data(PLAN_LINKS[plan1], start_date=start_date, end_date=end_date),
-        get_plan_data(PLAN_LINKS[plan2], start_date=start_date, end_date=end_date)
+    invalid_custom_plan1 = plan1 == "custom" and (
+        not custom_plan1_url or not validate_link(custom_plan1_url)
     )
+    invalid_custom_plan2 = plan2 == "custom" and (
+        not custom_plan2_url or not validate_link(custom_plan2_url)
+    )
+
+    if invalid_custom_plan1 or invalid_custom_plan2:
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "plan_data": [],
+            "start_date": start_date,
+            "end_date": end_date,
+            "plan1": plan1,
+            "plan2": plan2,
+            "custom_plan1_url": custom_plan1_url,
+            "custom_plan2_url": custom_plan2_url,
+            "error_message": "Custom plans selected but no valid links provided. Please enter a valid link for all custom plans. Currently supported custom link format: https://harmonogramy.ideis.pl/Plany/"
+        })
+
+    # 1. Fetch data
+    plan1_link = PLAN_LINKS.get(plan1) if plan1 != "custom" else custom_plan1_url
+    plan2_link = PLAN_LINKS.get(plan2) if plan2 != "custom" else custom_plan2_url
+    p1_data, p2_data = {}, {}
+
+    if not plan1_link or not plan2_link:
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "plan_data": [],
+            "start_date": start_date,
+            "end_date": end_date,
+            "plan1": plan1,
+            "plan2": plan2,
+            "custom_plan1_url": custom_plan1_url,
+            "custom_plan2_url": custom_plan2_url,
+            "error_message": "One or both plan links are missing. Please select a plan or provide a valid custom link."
+        })
+
+    try:
+        p1_data, p2_data = await asyncio.gather(
+            get_plan_data(plan1_link, start_date=start_date, end_date=end_date),
+            get_plan_data(plan2_link, start_date=start_date, end_date=end_date)
+        )
+    except Exception as e:
+        print(f"Error fetching plan data: {e}")
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "plan_data": [],
+            "start_date": start_date,
+            "end_date": end_date,
+            "plan1": plan1,
+            "plan2": plan2,
+            "custom_plan1_url": custom_plan1_url,
+            "custom_plan2_url": custom_plan2_url,
+            "error_message": "Error fetching plan data. Please try again later."
+        })
 
     # 2. Process Data
     all_dates = sorted(set(p1_data.keys()) | set(p2_data.keys()))
@@ -137,7 +201,10 @@ async def my_combined_plan(
         "start_date": start_date,
         "end_date": end_date,
         "plan1": plan1,
-        "plan2": plan2
+        "plan2": plan2,
+        "custom_plan1_url": custom_plan1_url,
+        "custom_plan2_url": custom_plan2_url,
+        "error_message": ""
     })
 
 def get_css_class(content: str, original_class: str) -> str:
@@ -154,3 +221,18 @@ def get_css_class(content: str, original_class: str) -> str:
             return f"{original_class} {value}"
         
     return f"{original_class} regular-border"
+
+def validate_link(link: str) -> bool:
+    if not isinstance(link, str):
+        return False
+        
+    try:
+        parsed = urlparse(link.strip())
+        
+        return (
+            parsed.scheme == "https" and
+            parsed.netloc == "harmonogramy.ideis.pl" and
+            parsed.path.startswith("/Plany/")
+        )
+    except Exception:
+        return False
