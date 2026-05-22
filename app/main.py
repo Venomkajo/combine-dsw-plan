@@ -1,13 +1,17 @@
 from collections import defaultdict
 from datetime import date, timedelta
 from typing import Optional
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
 import httpx
 import asyncio
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+
 import os
 
 PLAN_LINKS = {
@@ -99,15 +103,15 @@ async def my_combined_plan(
     end_date: Optional[date] = date.today() + timedelta(days=7), 
     plan1: Optional[str] = "INT-MWF-WykS", 
     plan2: Optional[str] = "IAiSC-WykS",
-    custom_plan1_name: Optional[str] = "",
-    custom_plan2_name: Optional[str] = ""
+    custom_plan1_url: Optional[str] = "",
+    custom_plan2_url: Optional[str] = ""
 ):
 
     invalid_custom_plan1 = plan1 == "custom" and (
-        not custom_plan1_name or not validate_link(custom_plan1_name)
+        not custom_plan1_url or not validate_link(custom_plan1_url)
     )
     invalid_custom_plan2 = plan2 == "custom" and (
-        not custom_plan2_name or not validate_link(custom_plan2_name)
+        not custom_plan2_url or not validate_link(custom_plan2_url)
     )
 
     if invalid_custom_plan1 or invalid_custom_plan2:
@@ -118,15 +122,28 @@ async def my_combined_plan(
             "end_date": end_date,
             "plan1": plan1,
             "plan2": plan2,
-            "custom_plan1_name": custom_plan1_name,
-            "custom_plan2_name": custom_plan2_name,
+            "custom_plan1_url": custom_plan1_url,
+            "custom_plan2_url": custom_plan2_url,
             "error_message": "Custom plans selected but no valid links provided. Please enter a valid link for all custom plans. Currently supported custom link format: https://harmonogramy.ideis.pl/Plany/"
         })
 
     # 1. Fetch data
-    plan1_link = PLAN_LINKS.get(plan1) if plan1 != "custom" else custom_plan1_name
-    plan2_link = PLAN_LINKS.get(plan2) if plan2 != "custom" else custom_plan2_name
+    plan1_link = PLAN_LINKS.get(plan1) if plan1 != "custom" else custom_plan1_url
+    plan2_link = PLAN_LINKS.get(plan2) if plan2 != "custom" else custom_plan2_url
     p1_data, p2_data = {}, {}
+
+    if not plan1_link or not plan2_link:
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "plan_data": [],
+            "start_date": start_date,
+            "end_date": end_date,
+            "plan1": plan1,
+            "plan2": plan2,
+            "custom_plan1_url": custom_plan1_url,
+            "custom_plan2_url": custom_plan2_url,
+            "error_message": "One or both plan links are missing. Please select a plan or provide a valid custom link."
+        })
 
     try:
         p1_data, p2_data = await asyncio.gather(
@@ -142,8 +159,8 @@ async def my_combined_plan(
             "end_date": end_date,
             "plan1": plan1,
             "plan2": plan2,
-            "custom_plan1_name": custom_plan1_name,
-            "custom_plan2_name": custom_plan2_name,
+            "custom_plan1_url": custom_plan1_url,
+            "custom_plan2_url": custom_plan2_url,
             "error_message": "Error fetching plan data. Please try again later."
         })
 
@@ -180,8 +197,8 @@ async def my_combined_plan(
         "end_date": end_date,
         "plan1": plan1,
         "plan2": plan2,
-        "custom_plan1_name": custom_plan1_name,
-        "custom_plan2_name": custom_plan2_name,
+        "custom_plan1_url": custom_plan1_url,
+        "custom_plan2_url": custom_plan2_url,
         "error_message": ""
     })
 
@@ -201,13 +218,16 @@ def get_css_class(content: str, original_class: str) -> str:
     return f"{original_class} regular-border"
 
 def validate_link(link: str) -> bool:
-    if not type(link) == str:
+    if not isinstance(link, str):
         return False
-    elif not link.startswith("https://harmonogramy.ideis.pl/Plany/"):
+        
+    try:
+        parsed = urlparse(link.strip())
+        
+        return (
+            parsed.scheme == "https" and
+            parsed.netloc == "harmonogramy.ideis.pl" and
+            parsed.path.startswith("/Plany/")
+        )
+    except Exception:
         return False
-    else:
-        return True
-    
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=9999)

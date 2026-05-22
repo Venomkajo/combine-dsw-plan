@@ -242,7 +242,7 @@ form .error {
     box-sizing: border-box;
 }
 
-.error_message {
+.error-message {
     color: #d9534f;
     background-color: #f2dede;
     border: 1px solid #ebccd1;

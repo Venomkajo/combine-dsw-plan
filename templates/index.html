@@ -13,11 +13,11 @@
     <div class="legend">
         <div class="legend-item">
             <div class="color-box color1"></div>
-            <span>INT-MWF-WykS (Custom 1)</span>
+            <span>Plan 1</span>
         </div>
         <div class="legend-item">
             <div class="color-box color2"></div>
-            <span>IAiSC-WykS (Custom 2)</span>
+            <span>Plan 2</span>
         </div>
         <div class="legend-item">
             <div class="color-box color3"></div>
@@ -45,8 +45,8 @@
                     <option value="custom" {% if plan1 == "custom" %}selected{% endif %}>Custom 1</option>
                 </select>
                 <div class="custom-plan-inputs" id="custom-plan1-inputs" style="display: none;">
-                    <label for="custom-plan1-name">Custom Plan 1 Name:</label>
-                    <input type="text" id="custom-plan1-name" name="custom_plan1_name" value="{{ custom_plan1_name }}" autocomplete="off">
+                    <label for="custom-plan1-url">Custom Plan 1 URL:</label>
+                    <input type="text" id="custom-plan1-url" name="custom_plan1_url" value="{{ custom_plan1_url }}" autocomplete="off">
                 </div>
             </div>
             <div class="plan-selection">
@@ -58,8 +58,8 @@
                     <option value="custom" {% if plan2 == "custom" %}selected{% endif %}>Custom 2</option>
                 </select>
                 <div class="custom-plan-inputs" id="custom-plan2-inputs" style="display: none;">
-                    <label for="custom-plan2-name">Custom Plan 2 Name:</label>
-                    <input type="text" id="custom-plan2-name" name="custom_plan2_name" value="{{ custom_plan2_name }}" autocomplete="off">
+                    <label for="custom-plan2-url">Custom Plan 2 URL:</label>
+                    <input type="text" id="custom-plan2-url" name="custom_plan2_url" value="{{ custom_plan2_url }}" autocomplete="off">
                 </div>
             </div>
         </div>
