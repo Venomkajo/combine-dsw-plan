@@ -15,12 +15,12 @@ from urllib.parse import urlparse
 import os
 
 PLAN_LINKS = {
-    "INT-MWF-WykS": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20153", 
-    "INT-MWF-1S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20380", 
-    "INT-MWF-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20381",
-    "IAiSC-WykS": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18909",
-    "IAiSC-1S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18910",
-    "IAiSC-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/18911"
+    "INT-MWF-WykS": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/21615", 
+    "INT-MWF-1S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/22151", 
+    "INT-MWF-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/22152",
+    "IAiSC-WykS": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20669",
+    "IAiSC-1S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20670",
+    "IAiSC-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20671"
 }
 
 
