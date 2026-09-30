@@ -106,10 +106,11 @@ async def my_combined_plan(
     request: Request,
     start_date: Optional[date] = date.today(), 
     end_date: Optional[date] = date.today() + timedelta(days=7), 
-    plan1: Optional[str] = "INT-MWF-WykS", 
+    plan1: Optional[str] = "INT-MWF-WykS",
     plan2: Optional[str] = "IAiSC-WykS",
-    custom_plan1_url: Optional[str] = "",
-    custom_plan2_url: Optional[str] = ""
+    custom_plan1_url: Optional[str] = None,
+    custom_plan2_url: Optional[str] = None,
+    personal: Optional[bool] = False
 ):
 
     invalid_custom_plan1 = plan1 == "custom" and (
@@ -129,6 +130,7 @@ async def my_combined_plan(
             "plan2": plan2,
             "custom_plan1_url": custom_plan1_url,
             "custom_plan2_url": custom_plan2_url,
+            "personal": personal,
             "error_message": "Custom plans selected but no valid links provided. Please enter a valid link for all custom plans. Currently supported custom link format: https://harmonogramy.ideis.pl/Plany/"
         })
 
@@ -147,6 +149,7 @@ async def my_combined_plan(
             "plan2": plan2,
             "custom_plan1_url": custom_plan1_url,
             "custom_plan2_url": custom_plan2_url,
+            "personal": personal,
             "error_message": "One or both plan links are missing. Please select a plan or provide a valid custom link."
         })
 
@@ -166,6 +169,7 @@ async def my_combined_plan(
             "plan2": plan2,
             "custom_plan1_url": custom_plan1_url,
             "custom_plan2_url": custom_plan2_url,
+            "personal": personal,
             "error_message": "Error fetching plan data. Please try again later."
         })
 
@@ -176,6 +180,13 @@ async def my_combined_plan(
     for d in all_dates:
         entries1 = set(p1_data.get(d, []))
         entries2 = set(p2_data.get(d, []))
+
+        if personal:
+            patterns = ["Algorytmy genetyczne i sztuczne sieci neuronowe", "Seminarium dyplomowe 1", "Język obcy 3", "Nowatorski projekt indywidualny", "Zajęcia z tutorem", "Wprowadzenie do Praktyki zawodowej 2", "Programowanie w C++"]
+
+            for pattern in patterns:
+                entries2 = {item for item in entries2 if not pattern in item[1]}
+
         
         day_entries = []
         
@@ -204,6 +215,7 @@ async def my_combined_plan(
         "plan2": plan2,
         "custom_plan1_url": custom_plan1_url,
         "custom_plan2_url": custom_plan2_url,
+        "personal": personal,
         "error_message": ""
     })
 

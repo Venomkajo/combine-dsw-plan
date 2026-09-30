@@ -64,6 +64,13 @@
             </div>
         </div>
         <div class="error" id="form-error-message" hidden></div>
+        <div class="plan-selection personal-selection">
+            <label for="personal">Personal:</label>
+            <select id="personal" name="personal">
+                <option value="false" {% if not personal %}selected{% endif %}>General</option>
+                <option value="true" {% if personal %}selected{% endif %}>Personal</option>
+            </select>
+        </div>
         <div class="button-container">
             <button type="button" id="previous-week-button">Prev Week</button>
             <button type="submit">Submit</button>
