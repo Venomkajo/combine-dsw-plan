@@ -182,7 +182,7 @@ async def my_combined_plan(
         entries2 = set(p2_data.get(d, []))
 
         if personal:
-            patterns = ["Algorytmy genetyczne i sztuczne sieci neuronowe", "Seminarium dyplomowe 1", "Język obcy 3", "Nowatorski projekt indywidualny", "Zajęcia z tutorem", "Wprowadzenie do Praktyki zawodowej 2", "Programowanie w C++"]
+            patterns = ["Algorytmy genetyczne i sztuczne sieci neuronowe", "Seminarium dyplomowe 1", "Język obcy 3", "Zajęcia z tutorem", "Wprowadzenie do Praktyki zawodowej 2", "Programowanie w C++"]
 
             for pattern in patterns:
                 entries2 = {item for item in entries2 if not pattern in item[1]}
