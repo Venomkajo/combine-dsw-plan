@@ -48,7 +48,11 @@ async def get_plan_data(url: str, start_date: date, end_date: date) -> dict:
             response = await client.get(url, headers=headers)
         except httpx.HTTPError as e:
             print(f"Error fetching {url}: {e}")
-            return {}
+            return None
+
+        if response.status_code != 200:
+            print(f"Error fetching {url}: HTTP status {response.status_code}")
+            return None
 
         soup = BeautifulSoup(response.text, "html.parser")
 
@@ -173,7 +177,24 @@ async def my_combined_plan(
             "error_message": "Error fetching plan data. Please try again later."
         })
 
-    # 2. Process Data
+    # 2. Validate that both plans actually loaded
+    failed_plans = []
+    if p1_data is None:
+        failed_plans.append(f"Plan 1 ({plan1 if plan1 != 'custom' else custom_plan1_url})")
+    if p2_data is None:
+        failed_plans.append(f"Plan 2 ({plan2 if plan2 != 'custom' else custom_plan2_url})")
+
+    error_message = ""
+    if failed_plans:
+        error_message = (
+            "Failed to load data for: " + ", ".join(failed_plans)
+            + ". The schedule below only shows the plans that loaded successfully. "
+            "Please check the plan selection / custom link and try again."
+        )
+
+    # 3. Process Data
+    p1_data = p1_data or {}
+    p2_data = p2_data or {}
     all_dates = sorted(set(p1_data.keys()) | set(p2_data.keys()))
     structured_plan = []
 
@@ -216,7 +237,7 @@ async def my_combined_plan(
         "custom_plan1_url": custom_plan1_url,
         "custom_plan2_url": custom_plan2_url,
         "personal": personal,
-        "error_message": ""
+        "error_message": error_message
     })
 
 def get_css_class(content: str, original_class: str) -> str:
