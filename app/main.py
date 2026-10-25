@@ -23,6 +23,15 @@ PLAN_LINKS = {
     "IAiSC-2S": "https://harmonogramy.ideis.pl/Plany/PlanyGrup/20671"
 }
 
+SECOND_PLAN_PATTERNS = [
+    "Algorytmy genetyczne i sztuczne sieci neuronowe",
+    "Seminarium dyplomowe 1",
+    "Język obcy 3",
+    "Zajęcia z tutorem",
+    "Wprowadzenie do Praktyki zawodowej 2",
+    "Programowanie w C++"
+]
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -203,7 +212,7 @@ async def my_combined_plan(
         entries2 = set(p2_data.get(d, []))
 
         if personal:
-            patterns = ["Algorytmy genetyczne i sztuczne sieci neuronowe", "Seminarium dyplomowe 1", "Język obcy 3", "Zajęcia z tutorem", "Wprowadzenie do Praktyki zawodowej 2", "Programowanie w C++"]
+            patterns = SECOND_PLAN_PATTERNS
 
             for pattern in patterns:
                 entries2 = {item for item in entries2 if not pattern in item[1]}

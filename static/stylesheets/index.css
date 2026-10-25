@@ -196,7 +196,11 @@ form .error {
     display: flex;
     gap: 15px;
     justify-content: space-between;
-    margin-top: 20px;
+}
+
+.today-container {
+    display: flex;
+    justify-content: center;
 }
 
 .canceled-border {

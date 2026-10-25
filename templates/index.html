@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Harmonogram</title>
+    <title>Harmonogram {{ start_date }} - {{ end_date }}</title>
     <link rel="stylesheet" href="../static/stylesheets/index.css">
     <link rel="icon" href="../static/images/favicon.png" type="image/png">
     <script src="../static/javascript/index.js" defer></script>
@@ -70,6 +70,9 @@
                 <option value="false" {% if not personal %}selected{% endif %}>General</option>
                 <option value="true" {% if personal %}selected{% endif %}>Personal</option>
             </select>
+        </div>
+        <div class="today-container">
+            <button type="button" id="today-button">Today</button>
         </div>
         <div class="button-container">
             <button type="button" id="previous-week-button">Prev Week</button>
