@@ -41,7 +41,6 @@ function autoUpdateEndDate() {
 function updateWeek() {
     const startDateInput = document.getElementById('start_date');
     const endDateInput = document.getElementById('end_date');
-    const todayButton = document.getElementById('today-button');
 
     let startDate = new Date(startDateInput.value);
     let endDate = new Date(endDateInput.value);
@@ -56,7 +55,7 @@ function updateWeek() {
     } else if (this.id === 'next-week-button') {
         startDate.setDate(startDate.getDate() + 7);
         endDate.setDate(endDate.getDate() + 7);
-    } else if (this.id === 'today-button') {
+    } else if (this.id === 'this-week-button') {
         const today = new Date();
         startDate = new Date(today);
         endDate = new Date(today);
@@ -101,10 +100,12 @@ function addEventListeners() {
 
     const previousWeekButton = document.getElementById('previous-week-button');
     const nextWeekButton = document.getElementById('next-week-button');
-    const todayButton = document.getElementById('today-button');
+    const thisWeekButton = document.getElementById('this-week-button');
+
+
     previousWeekButton.addEventListener('click', updateWeek);
     nextWeekButton.addEventListener('click', updateWeek);
-    todayButton.addEventListener('click', updateWeek);
+    thisWeekButton.addEventListener('click', updateWeek);
 
     const plan1Select = document.getElementById('plan1');
     const plan2Select = document.getElementById('plan2');
